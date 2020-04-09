@@ -8,6 +8,7 @@ info:
     url: 'https://fano.ai'
 servers:
   - url: 'https://your-accobot-hostname/api'
+    description: (Dummy)
 paths:
   /accobot/chat:
     post:
@@ -114,13 +115,13 @@ paths:
           in: header
           name: scope
           required: true
-          description: Specifying which chatbot is using
+          description: specifying which chatbot is using
         - schema:
             type: string
           in: query
           name: user_id
           required: true
-          description: Client identifier
+          description: client identifier
       requestBody:
         content:
           application/json:
@@ -313,13 +314,13 @@ paths:
             type: string
           in: header
           name: scope
-          description: Specifying which chatbot is using
+          description: specifying which chatbot is using
           required: true
         - schema:
             type: string
           in: query
           name: user_id
-          description: Client identifier
+          description: client identifier
           required: true
       requestBody:
         content:
@@ -375,6 +376,68 @@ paths:
                   intent: GREETING
                   entities: []
         description: ''
+  /knowledge-base/query:
+    post:
+      summary: /knowledge-base/query
+      operationId: post-knowledge-base-query
+      responses:
+        '200':
+          description: OK
+      description: Retrieve Knowledge Base (KB) results
+      tags:
+        - knowledge-base
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+        - schema:
+            type: string
+          in: query
+          name: user_id
+          description: client identifier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                question:
+                  type: string
+                content:
+                  type: string
+                tags:
+                  type: string
+                top_k:
+                  type: string
+                categories:
+                  type: string
+                langs:
+                  type: string
+                return_langs:
+                  type: string
+            examples:
+              JSON Example:
+                value:
+                  text: pdf
+                  question: true
+                  content: true
+                  tags: true
+                  top_k: 10
+                  categories:
+                    - 5a68307998080327952e32f2
+                  langs:
+                    - zh
+        description: |-
+          Note:
+          - If `text` is a whole sentence, the sentence would be tokenized into list of words before passing to query.
+          - The values of `categories` field are the ID of the categories, which could be retrieved from `/knowledge-base/category/query` API.
+          - With `categories` specified, the query will only retrieve KB records within the categories AND their children categories.
 components:
   schemas:
     ChatResponse:
@@ -509,45 +572,45 @@ components:
             properties:
               text:
                 type: string
-          - properties:
+          - description: audio content
+            properties:
               audio:
                 type: object
-            description: audio content
-          - properties:
+          - description: image content
+            properties:
               image:
                 type: object
                 description: ''
-            description: image content
-          - properties:
+          - description: video content
+            properties:
               video:
                 type: object
-            description: video content
-          - properties:
+          - description: web URL content
+            properties:
               web:
                 type: object
-            description: web URL content
-          - properties:
+          - description: callback object content
+            properties:
               callback:
                 type: object
               '':
                 type: string
-            description: callback object content
-          - properties:
+          - description: options content
+            properties:
               options:
                 type: array
                 items:
                   type: object
-            description: options content
-          - properties:
+          - description: custom payload content
+            properties:
               custom_payload:
                 type: object
-            description: custom payload content
         type: object
   securitySchemes:
     basic auth:
       type: http
       scheme: basic
-      description: 'Basic Authentication header, with base64-encoded username:password, e.g. `Basic QWxhZGRpbjpPcGVuU2VzYW1l`'
+      description: 'Basic Authentication header, with base64-encoded username:password'
 tags:
   - name: accobot
     description: for accessing AccoBot Chat API
