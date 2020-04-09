@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: AccoBot API
-  version: v20.04.x.x
+  version: v20.04
   description: Access AccoBot services
   contact:
     name: Fano Labs Ltd.
