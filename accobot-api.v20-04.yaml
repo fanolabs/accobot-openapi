@@ -8,7 +8,6 @@ info:
     url: 'https://fano.ai'
 servers:
   - url: 'https://your-accobot-hostname/api'
-    description: (Dummy)
 paths:
   /accobot/chat:
     post:
@@ -566,6 +565,155 @@ paths:
                 value:
                   name: payment-method
                   depth: 3
+  '/bre/users/{user_id}/session-context':
+    parameters:
+      - schema:
+          type: string
+        name: user_id
+        in: path
+        description: client identifier
+        required: true
+    get:
+      summary: '/bre/users/{user_id}/session-context'
+      tags:
+        - business-rule
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scope:
+                    type: string
+                  user_id:
+                    type: string
+                  channel:
+                    type: string
+                  nlu_result:
+                    type: object
+                  SPEECH_CONTEXT:
+                    type: object
+                  output_language:
+                    type: string
+              examples:
+                JSON Example:
+                  value:
+                    scope: accobot
+                    channel: api
+                    SPEECH_CONTEXT:
+                      rule:
+                        id: 5d148c290ea6a52756eba564
+                        name: 福利_menu
+                        conditions:
+                          default: true
+                        actions:
+                          - show_response:
+                              - 福利_menu
+                        next_rules: []
+                        use_multi_rounds: false
+                        next_round_rules: []
+                        require_entities: null
+                        is_active: true
+                      ask_missing_entity_retry_count: 0
+                      intents:
+                        - name: welfare
+                          confidence: 0.6404643059
+                          confirmation_text:
+                            zh: 福利
+                            en: ''
+                            zh_cn: ''
+                          is_business_intent: false
+                      entities:
+                        - type: number
+                          name: '12345'
+                          start_idx: 0
+                          end_idx: 5
+                          regex_match: null
+                          display_name: null
+                          pronounce_name: null
+                          description: null
+                          id: '12345'
+                          search_name: null
+                          is_sensitive: false
+                          keywords: null
+                          record_source: built_in
+                      last_action:
+                        - - show_response
+                          - - 福利_menu
+                    user_id: dennis
+                    output_language: en
+                    nlu_result:
+                      text: 12345 and efit
+                      entities:
+                        - type: number
+                          name: '12345'
+                          start_idx: 0
+                          end_idx: 5
+                          regex_match: null
+                          display_name: null
+                          pronounce_name: null
+                          description: null
+                          id: '12345'
+                          search_name: null
+                          is_sensitive: false
+                          keywords: null
+                          record_source: built_in
+                      intents:
+                        - name: welfare
+                          confidence: 0.6404643059
+                          confirmation_text:
+                            zh: 福利
+                            en: ''
+                            zh_cn: ''
+                          is_business_intent: false
+      operationId: get-bre-users-user_id-session-context
+      description: |-
+        Get specific user's session context
+
+        <!-- theme: warning -->
+        > The GET method is mainly for internal troubleshooting only. The data structure of the response may change, and it should not be referenced during system integration.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+    delete:
+      summary: '/bre/users/{user_id}/session-context'
+      operationId: delete-bre-users-user_id-session-context
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    default: true
+              examples:
+                JSON Example:
+                  value:
+                    ok: true
+      description: |-
+        Clear specific user's session context
+
+        > The DELETE method is mainly used during system integration for some "Start over" scenario.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+      tags:
+        - business-rule
 components:
   schemas:
     ChatResponse:
@@ -825,5 +973,7 @@ components:
 tags:
   - name: accobot
     description: for accessing AccoBot Chat API
+  - name: business-rule
+    description: for accessing Business Rule service APIs
   - name: knowledge-base
     description: for accessing Knowledge Base service APIs
