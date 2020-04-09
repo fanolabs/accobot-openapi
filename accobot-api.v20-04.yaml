@@ -383,6 +383,31 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeBase'
+              examples:
+                JSON Example:
+                  value:
+                    - id: 5a84084a164113000e39e548
+                      question: 邊度搵到 xxxxx 服務登記表格？
+                      content:
+                        - text:
+                            en: Register Form has both Web version and PDF version.
+                            zh: 登記表格分 Web 版本及 PDF 版本。
+                            zh_cn: 登記表格分 Web 版本及 PDF 版本。
+                        - web:
+                            url:
+                              en: ./static/example2.pdf
+                              zh: ./static/example2.pdf
+                              zh_cn: ./static/example2.pdf
+                            description:
+                              en: Register Form PDF
+                              zh: 登記表格 PDF
+                              zh_cn: 登記表格 PDF
       description: Retrieve Knowledge Base (KB) results
       tags:
         - knowledge-base
@@ -407,37 +432,140 @@ paths:
               properties:
                 text:
                   type: string
+                  description: |-
+                    text to be searched
+
+                    If `text` contains multiple words, the sentence would be tokenized into list of words before passing to query.
                 question:
-                  type: string
+                  type: boolean
+                  default: true
+                  description: is KB `question` field included in search
                 content:
-                  type: string
+                  type: boolean
+                  default: false
+                  description: is KB `content` field included in search
                 tags:
-                  type: string
+                  type: boolean
+                  default: false
+                  description: is KB `tags` field included in search
                 top_k:
-                  type: string
+                  type: integer
+                  default: 20
+                  description: query for top K relevant result
                 categories:
-                  type: string
+                  type: array
+                  description: |-
+                    if set, query KBs that belong to one of of the categories
+
+                    - The values of `categories` field are the ID of the categories, which could be retrieved from `/knowledge-base/category/query` API.
+                    - With `categories` specified, the query will only retrieve KB records within the categories AND their children categories.
+                  uniqueItems: false
+                  items:
+                    type: string
                 langs:
-                  type: string
+                  type: array
+                  description: |-
+                    if set, query KBs by specified languages
+
+                    Array values could be `"en"`, `"zh"`, and/or `"zh_cn"`.
+                  items:
+                    type: string
                 return_langs:
-                  type: string
+                  type: array
+                  description: |-
+                    if set, return KB results with contents of specified languages
+
+                    Array values could be `"en"`, `"zh"`, and/or `"zh_cn"`.
+                  items:
+                    type: string
             examples:
               JSON Example:
                 value:
                   text: pdf
                   question: true
-                  content: true
-                  tags: true
-                  top_k: 10
+                  content: false
+                  tags: false
+                  top_k: 20
                   categories:
                     - 5a68307998080327952e32f2
                   langs:
                     - zh
-        description: |-
-          Note:
-          - If `text` is a whole sentence, the sentence would be tokenized into list of words before passing to query.
-          - The values of `categories` field are the ID of the categories, which could be retrieved from `/knowledge-base/category/query` API.
-          - With `categories` specified, the query will only retrieve KB records within the categories AND their children categories.
+        description: ''
+  /knowledge-base/category/query:
+    post:
+      summary: /knowledge-base/category/query
+      operationId: post-knowledge-base-category-query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    description: result categories and their children.
+                    items:
+                      $ref: '#/components/schemas/KnowledgeBaseCategory'
+              examples:
+                JSON Example:
+                  value:
+                    categories:
+                      - id: 5a68307998080327952e32f2
+                        name: payment-method
+                        parent: 5a659c9d0be444296712c7b4
+                        full_path: /5a6596400be444276025e8b1/5a659c9d0be444296712c7b4
+                        children: []
+                      - id: 5a65c8890be44434e88e17b5
+                        name: payment-method
+                        parent: 5a659ed40be44429d7174321
+                        full_path: /5a6596400be444276061689b/5a659c9d0be44429673203f3/5a659ed40be44429d7174321
+                        children:
+                          - id: 5a682c5198080327952e2cab
+                            name: child category 1
+                            parent: 5a65c8890be44434e88e17b5
+                            full_path: /5a6596400be444276061689b/5a659c9d0be44429673203f3/5a659ed40be44429d7174321/5a65c8890be44434e88e17b5
+                            children: []
+      tags:
+        - knowledge-base
+      description: |-
+        Retrieve KB categories.
+
+        - The response shows the category hierarchy in nested structure. Each category has a `children` field containing its children categories.
+        - If the query does not have `name` and `depth` specified, it will return ALL KB categories stored in the system.
+        - With `name` specified in request, the query will return categories with the name specified (exact match, CASE sensitive), along with their children categories.
+            - Notice that there could have mulitple categories have the same `name` matched.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+        - schema:
+            type: string
+          in: query
+          name: user_id
+          description: client identifier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: query by category name
+                depth:
+                  type: integer
+                  description: 'max. depth of children category tree '
+            examples:
+              JSON example:
+                value:
+                  name: payment-method
+                  depth: 3
 components:
   schemas:
     ChatResponse:
@@ -504,6 +632,8 @@ components:
         error_msg:
           type: string
           description: shown when `status` is `error`
+      x-tags:
+        - accobot
     ResponseContent:
       title: ResponseContent
       type: array
@@ -566,6 +696,8 @@ components:
           - custom_payload:
               custom_key: custom_value
       description: array of response contents
+      x-tags:
+        - accobot
       items:
         anyOf:
           - description: text Content
@@ -606,6 +738,85 @@ components:
               custom_payload:
                 type: object
         type: object
+    KnowledgeBase:
+      title: KnowledgeBase
+      type: object
+      x-examples:
+        JSON Example:
+          id: 5c4847b18679ca0001e03a8b
+          question:
+            en: "I'd like to have a credit card"
+            zh: 我要申請信用卡
+            zh_cn: 我要办信用卡
+          content:
+            - text:
+                en: Credit card application
+                zh: 信用卡申請
+                zh_cn: 信用卡怎么办
+          categories: []
+          tags: []
+      x-tags:
+        - knowledge-base
+      description: reponse item of KB API
+      properties:
+        id:
+          type: string
+        question:
+          type: object
+          properties:
+            en:
+              type: string
+            zh:
+              type: string
+            zh_cn:
+              type: string
+        content:
+          type: array
+          items:
+            type: object
+        categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - question
+        - content
+    KnowledgeBaseCategory:
+      title: KnowledgeBaseCategory
+      type: object
+      x-examples:
+        JSON Example:
+          id: 5a68307998080327952e32f2
+          name: payment-method
+          parent: 5a659c9d0be444296712c7b4
+          full_path: /5a6596400be444276025e8b1/5a659c9d0be444296712c7b4
+          children: []
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        parent:
+          type: string
+        full_path:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeBaseCategory'
+      required:
+        - id
+        - name
+        - parent
+        - full_path
+        - children
+      x-tags:
+        - knowledge-base
   securitySchemes:
     basic auth:
       type: http
@@ -614,3 +825,5 @@ components:
 tags:
   - name: accobot
     description: for accessing AccoBot Chat API
+  - name: knowledge-base
+    description: for accessing Knowledge Base service APIs
