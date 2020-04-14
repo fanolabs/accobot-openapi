@@ -125,54 +125,9 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                content_type:
-                  type: string
-                  enum:
-                    - text/plain
-                  example: text/plain
-                  description: The content type of the `content` field
-                expect_type:
-                  type: string
-                  default: text/plain
-                  description: The content type of the response
-                  enum:
-                    - text/plain
-                    - audio/mp3
-                input_language:
-                  type: string
-                  enum:
-                    - mandarin
-                    - cantonese
-                    - english-usa
-                  example: cantonese
-                  description: |-
-                    The language of the text or audio input data. If not set, AccoBot will try to determine the language with best effort.
-
-                    > NOTE: this should not be treated as "auto-language detction". We still suggest client to give values to `input_language` and `output_language` for consistency of system behaviour.
-                output_language:
-                  type: string
-                  enum:
-                    - mandarin
-                    - cantonese
-                    - english-usa
-                  example: cantonese
-                  description: 'AccoBot will response in that language. If not set, AccoBot will response in the same language as `input_language`.'
-                session_info:
-                  type: object
-                  description: 'Contains the session information from external system, e.g. `{"channel": "api"}`'
-                  properties:
-                    channel:
-                      type: string
-                      default: api
-                content:
-                  type: string
-                  description: 'Text content (what client what to "chat" with AccoBot)'
-                  example: Hello AccoBot
-              required:
-                - content_type
-                - content
+              oneOf:
+                - $ref: '#/components/schemas/ChatRequestJson'
+                - $ref: '#/components/schemas/ChatRequestForm'
             examples:
               Text input example:
                 value:
@@ -183,60 +138,7 @@ paths:
                   session_info:
                     channel: api
                   content: Hello AccoBot 12345
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                content_type:
-                  type: string
-                  description: The content type of the `content` field
-                  enum:
-                    - audio/mp3
-                    - audio/wav
-                  example: audio/wav
-                expect_type:
-                  type: string
-                  default: text/plain
-                  description: The content type of the response
-                  enum:
-                    - text/plain
-                    - audio/mp3
-                input_language:
-                  type: string
-                  description: |-
-                    The language of the text or audio input data. If not set, AccoBot will try to determine the language with best effort.
-
-                    > NOTE: this should not be treated as "auto-language detction". We still suggest client to give values to `input_language` and `output_language` for consistency of system behaviour.
-                  example: cantonese
-                  enum:
-                    - mandarin
-                    - cantonese
-                    - english-usa
-                output_language:
-                  type: string
-                  description: 'AccoBot will response in that language. If not set, AccoBot will response in the same language as `input_language`.'
-                  example: cantonese
-                  enum:
-                    - mandarin
-                    - cantonese
-                    - english-usa
-                session_info:
-                  type: string
-                  description: JSON string for the session information from external system
-                channel:
-                  type: string
-                  description: "The channel type for ASR server. It should align with CMP System Config's channel. If `session_info` is skipped, this will be used as `session_info`'s channel as default"
-                content:
-                  type: string
-                  format: binary
-                require_diarization:
-                  type: string
-                  default: 'True'
-                  description: For `require_diarization` parameter in ASR call
-              required:
-                - content_type
-                - channel
-        description: Request body can be in the form of `application/json` (for text input) or `multipart/form-data` (for voice input).
+        description: Request body can be in the form of `application/json` (`ChatRequestJson` for text input) or `multipart/form-data` (`ChatRequestForm` for voice input).
   /accobot/bre-match:
     post:
       summary: /accobot/bre-match
@@ -965,6 +867,114 @@ components:
         - children
       x-tags:
         - knowledge-base
+    ChatRequestForm:
+      title: ChatRequestForm
+      type: object
+      properties:
+        content_type:
+          type: string
+          description: The content type of the `content` field
+          enum:
+            - audio/mp3
+            - audio/wav
+          example: audio/wav
+        expect_type:
+          type: string
+          default: text/plain
+          description: The content type of the response
+          enum:
+            - text/plain
+            - audio/mp3
+        input_language:
+          type: string
+          description: |-
+            The language of the text or audio input data. If not set, AccoBot will try to determine the language with best effort.
+
+            > NOTE: this should not be treated as "auto-language detction". We still suggest client to give values to `input_language` and `output_language` for consistency of system behaviour.
+          example: cantonese
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+        output_language:
+          type: string
+          description: 'AccoBot will response in that language. If not set, AccoBot will response in the same language as `input_language`.'
+          example: cantonese
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+        session_info:
+          type: string
+          description: JSON string for the session information from external system
+        channel:
+          type: string
+          description: "The channel type for ASR server. It should align with CMP System Config's channel. If `session_info` is skipped, this will be used as `session_info`'s channel as default"
+        content:
+          type: string
+          format: binary
+        require_diarization:
+          type: string
+          default: 'True'
+          description: For `require_diarization` parameter in ASR call
+      required:
+        - content_type
+        - channel
+        - content
+      x-tags:
+        - accobot
+    ChatRequestJson:
+      title: ChatRequestJson
+      type: object
+      properties:
+        content_type:
+          type: string
+          enum:
+            - text/plain
+          example: text/plain
+          description: The content type of the `content` field
+        expect_type:
+          type: string
+          default: text/plain
+          description: The content type of the response
+          enum:
+            - text/plain
+            - audio/mp3
+        input_language:
+          type: string
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+          example: cantonese
+          description: |-
+            The language of the text or audio input data. If not set, AccoBot will try to determine the language with best effort.
+
+            > NOTE: this should not be treated as "auto-language detction". We still suggest client to give values to `input_language` and `output_language` for consistency of system behaviour.
+        output_language:
+          type: string
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+          example: cantonese
+          description: 'AccoBot will response in that language. If not set, AccoBot will response in the same language as `input_language`.'
+        session_info:
+          type: object
+          description: 'Contains the session information from external system, e.g. `{"channel": "api"}`'
+          properties:
+            channel:
+              type: string
+              default: api
+        content:
+          type: string
+          description: 'Text content (what client what to "chat" with AccoBot)'
+          example: Hello AccoBot
+      required:
+        - content_type
+        - content
+      x-tags:
+        - accobot
   securitySchemes:
     basic auth:
       type: http
