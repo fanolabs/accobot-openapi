@@ -1,0 +1,1011 @@
+openapi: 3.0.0
+info:
+  title: AccoBot API
+  version: v21.04
+  description: Access AccoBot services
+  contact:
+    name: Fano Labs Ltd.
+    url: 'https://fano.ai'
+servers:
+  - url: 'https://your-accobot-hostname/api'
+paths:
+  /accobot/chat:
+    post:
+      summary: /accobot/chat
+      tags:
+        - accobot
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                Text Response Example:
+                  value:
+                    status: success
+                    content_type: text/plain
+                    content:
+                      - text: Hello! I am AccoBot.
+                    msg_count: 1
+                    rule_stack:
+                      - id: 5d148c290ea6a52756eba543
+                        name: ROOT
+                      - id: 5d148c290ea6a52756eba5b4
+                        name: greeting
+                    is_idk: false
+                    is_asking_intent_confirmation: false
+                    is_requiring_entity: false
+                    is_requiring_entity_fail: false
+                    is_sensitive_input: false
+                    user_input_to_log: Hello AccoBot 12345
+                    warnings: []
+                    nlu_result:
+                      text: Hello AccoBot 12345
+                      entities:
+                        - type: number
+                          name: '12345'
+                          start_idx: 14
+                          end_idx: 19
+                          regex_match: null
+                          display_name: null
+                          pronounce_name: null
+                          description: null
+                          id: '12345'
+                          search_name: null
+                          is_sensitive: false
+                          keywords: null
+                          record_source: built_in
+                      intents:
+                        - name: GREETING
+                          confidence: 0.6220493317
+                          confirmation_text:
+                            zh: GREETING
+                            en: GREETING
+                            zh_cn: GREETING
+                          is_business_intent: false
+                    speech_context:
+                      rule:
+                        id: 5d148c290ea6a52756eba5b4
+                        name: greeting
+                        conditions:
+                          intent:
+                            - GREETING
+                        actions:
+                          - show_response:
+                              - greeting_response
+                        next_rules: []
+                        use_multi_rounds: false
+                        next_round_rules: []
+                        require_entities: null
+                        is_active: true
+                      ask_missing_entity_retry_count: 0
+                      intents: []
+                      entities:
+                        - type: number
+                          name: '12345'
+                          start_idx: 14
+                          end_idx: 19
+                          regex_match: null
+                          display_name: null
+                          pronounce_name: null
+                          description: null
+                          id: '12345'
+                          search_name: null
+                          is_sensitive: false
+                          keywords: null
+                          record_source: built_in
+                      last_action:
+                        - - show_response
+                          - - greeting_response
+                    is_start: true
+      operationId: post-accobot-chat
+      description: |-
+        "Chat" with AccoBot with text / audio input.
+
+        For every request you made to AccoBot, you need to define your own user ID and replace `user_id` with it. AccoBot uses this user ID to decide who the system is currently talking to.
+        Multiple clients sharing the same `user_id` would result in unpredictable responses.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          required: true
+          description: specifying which chatbot is using
+        - schema:
+            type: string
+          in: query
+          name: user_id
+          required: true
+          description: client identifier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ChatRequestJson'
+                - $ref: '#/components/schemas/ChatRequestForm'
+            examples:
+              Text input example:
+                value:
+                  content_type: text/plain
+                  expect_type: text/plain
+                  input_language: cantonese
+                  output_language: cantonese
+                  session_info:
+                    channel: api
+                  content: Hello AccoBot 12345
+        description: Request body can be in the form of `application/json` (`ChatRequestJson` for text input) or `multipart/form-data` (`ChatRequestForm` for voice input).
+  /accobot/bre-match:
+    post:
+      summary: /accobot/bre-match
+      operationId: post-accobot-bre-match
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                Text Response Example:
+                  value:
+                    status: success
+                    content_type: text/plain
+                    content:
+                      - text: Hello! I am AccoBot.
+                    msg_count: 1
+                    rule_stack:
+                      - id: 5d148c290ea6a52756eba5b4
+                        name: greeting
+                    is_idk: false
+                    is_asking_intent_confirmation: false
+                    is_requiring_entity: false
+                    is_requiring_entity_fail: false
+                    is_sensitive_input: false
+                    user_input_to_log: ''
+                    warnings: []
+                    nlu_result:
+                      text: ''
+                      entities: []
+                      intents:
+                        - name: GREETING
+                          confidence: 1
+                          confirmation_text:
+                            zh: GREETING
+                            en: GREETING
+                            zh_cn: GREETING
+                          is_business_intent: false
+                    speech_context:
+                      rule:
+                        id: 5d148c290ea6a52756eba5b4
+                        name: greeting
+                        conditions:
+                          intent:
+                            - GREETING
+                        actions:
+                          - show_response:
+                              - greeting_response
+                        next_rules: []
+                        use_multi_rounds: false
+                        next_round_rules: []
+                        require_entities: null
+                        is_active: true
+                      ask_missing_entity_retry_count: 0
+                      intents: []
+                      entities: []
+                      last_action:
+                        - - show_response
+                          - - greeting_response
+                    is_start: true
+      description: |-
+        Execute BRE directly for response
+
+        <!-- theme: warning -->
+        > The following API is mainly used to trigger specific Business Rule section directly to give result. Since it is not following the normal procedure of chatbot mechanism, something could be missed (e.g. matched Business Rule / Entities) and may corrupt the follow up user requests. It is suggested to consult AccoBot administrator before using the following.
+      tags:
+        - accobot
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: user_id
+          description: client identifier
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expect_type:
+                  type: string
+                  default: text/plain
+                  enum:
+                    - text/plain
+                    - audio/mp3
+                  description: the content type of the response
+                output_language:
+                  type: string
+                  description: output language of the response contents
+                  enum:
+                    - mandarin
+                    - cantonese
+                    - english-usa
+                  example: cantonese
+                session_info:
+                  type: object
+                  description: 'session info from external system, e.g. incoming channel'
+                  properties:
+                    channel:
+                      type: string
+                      default: api
+                rule_name:
+                  type: string
+                  description: the business rule to be invoked
+                  example: change_credentials
+                intent:
+                  type: string
+                  description: the name of the intent
+                  example: Change-Credentials
+                entities:
+                  description: the name of the entities
+                  type: array
+                  items:
+                    type: string
+              required:
+                - output_language
+            examples:
+              JSON example:
+                value:
+                  expect_type: text/plain
+                  output_language: cantonese
+                  session_info:
+                    channel: api
+                  rule_name: greeting
+                  intent: GREETING
+                  entities: []
+        description: ''
+  /knowledge-base/query:
+    post:
+      summary: /knowledge-base/query
+      operationId: post-knowledge-base-query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeBase'
+              examples:
+                JSON Example:
+                  value:
+                    - id: 5a84084a164113000e39e548
+                      question:
+                        en: Where can I find the Register Form?
+                        zh: 邊度搵到 xxxxx 服務登記表格？
+                        zh_cn: 邊度搵到 xxxxx 服務登記表格？
+                      content:
+                        - text:
+                            en: Register Form has both Web version and PDF version.
+                            zh: 登記表格分 Web 版本及 PDF 版本。
+                            zh_cn: 登記表格分 Web 版本及 PDF 版本。
+                        - web:
+                            url:
+                              en: ./static/example2.pdf
+                              zh: ./static/example2.pdf
+                              zh_cn: ./static/example2.pdf
+                            description:
+                              en: Register Form PDF
+                              zh: 登記表格 PDF
+                              zh_cn: 登記表格 PDF
+      description: Retrieve Knowledge Base (KB) results
+      tags:
+        - knowledge-base
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+        - schema:
+            type: string
+          in: query
+          name: user_id
+          description: client identifier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: |-
+                    text to be searched
+
+                    If `text` contains multiple words, the sentence would be tokenized into list of words before passing to query.
+                question:
+                  type: boolean
+                  default: true
+                  description: is KB `question` field included in search
+                content:
+                  type: boolean
+                  default: false
+                  description: is KB `content` field included in search
+                tags:
+                  type: boolean
+                  default: false
+                  description: is KB `tags` field included in search
+                top_k:
+                  type: integer
+                  default: 20
+                  description: query for top K relevant result
+                categories:
+                  type: array
+                  description: |-
+                    if set, query KBs that belong to one of of the categories
+
+                    - The values of `categories` field are the ID of the categories, which could be retrieved from `/knowledge-base/category/query` API.
+                    - With `categories` specified, the query will only retrieve KB records within the categories AND their children categories.
+                  uniqueItems: false
+                  items:
+                    type: string
+                langs:
+                  type: array
+                  description: |-
+                    if set, query KBs by specified languages
+
+                    Array values could be `"en"`, `"zh"`, and/or `"zh_cn"`.
+                  items:
+                    type: string
+                return_langs:
+                  type: array
+                  description: |-
+                    if set, return KB results with contents of specified languages
+
+                    Array values could be `"en"`, `"zh"`, and/or `"zh_cn"`.
+                  items:
+                    type: string
+            examples:
+              JSON Example:
+                value:
+                  text: pdf
+                  question: true
+                  content: false
+                  tags: false
+                  top_k: 20
+                  categories:
+                    - 5a68307998080327952e32f2
+                  langs:
+                    - zh
+        description: ''
+  /knowledge-base/category/query:
+    post:
+      summary: /knowledge-base/category/query
+      operationId: post-knowledge-base-category-query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    description: result categories and their children.
+                    items:
+                      $ref: '#/components/schemas/KnowledgeBaseCategory'
+              examples:
+                JSON Example:
+                  value:
+                    categories:
+                      - id: 5a68307998080327952e32f2
+                        name: payment-method
+                        parent: 5a659c9d0be444296712c7b4
+                        full_path: /5a6596400be444276025e8b1/5a659c9d0be444296712c7b4
+                        children: []
+                      - id: 5a65c8890be44434e88e17b5
+                        name: payment-method
+                        parent: 5a659ed40be44429d7174321
+                        full_path: /5a6596400be444276061689b/5a659c9d0be44429673203f3/5a659ed40be44429d7174321
+                        children:
+                          - id: 5a682c5198080327952e2cab
+                            name: child category 1
+                            parent: 5a65c8890be44434e88e17b5
+                            full_path: /5a6596400be444276061689b/5a659c9d0be44429673203f3/5a659ed40be44429d7174321/5a65c8890be44434e88e17b5
+                            children: []
+      tags:
+        - knowledge-base
+      description: |-
+        Retrieve KB categories.
+
+        - The response shows the category hierarchy in nested structure. Each category has a `children` field containing its children categories.
+        - If the query does not have `name` and `depth` specified, it will return ALL KB categories stored in the system.
+        - With `name` specified in request, the query will return categories with the name specified (exact match, CASE sensitive), along with their children categories.
+            - Notice that there could have mulitple categories have the same `name` matched.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+        - schema:
+            type: string
+          in: query
+          name: user_id
+          description: client identifier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: query by category name
+                depth:
+                  type: integer
+                  description: 'max. depth of children category tree '
+            examples:
+              JSON example:
+                value:
+                  name: payment-method
+                  depth: 3
+  '/bre/users/{user_id}/session-context':
+    parameters:
+      - schema:
+          type: string
+        name: user_id
+        in: path
+        description: client identifier
+        required: true
+    get:
+      summary: '/bre/users/{user_id}/session-context'
+      tags:
+        - business-rule
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scope:
+                    type: string
+                  user_id:
+                    type: string
+                  channel:
+                    type: string
+                  nlu_result:
+                    type: object
+                  SPEECH_CONTEXT:
+                    type: object
+                  output_language:
+                    type: string
+              examples:
+                JSON Example:
+                  value:
+                    scope: accobot
+                    channel: api
+                    SPEECH_CONTEXT:
+                      rule:
+                        id: 5d148c290ea6a52756eba564
+                        name: 福利_menu
+                        conditions:
+                          default: true
+                        actions:
+                          - show_response:
+                              - 福利_menu
+                        next_rules: []
+                        use_multi_rounds: false
+                        next_round_rules: []
+                        require_entities: null
+                        is_active: true
+                      ask_missing_entity_retry_count: 0
+                      intents:
+                        - name: welfare
+                          confidence: 0.6404643059
+                          confirmation_text:
+                            zh: 福利
+                            en: ''
+                            zh_cn: ''
+                          is_business_intent: false
+                      entities:
+                        - type: number
+                          name: '12345'
+                          start_idx: 0
+                          end_idx: 5
+                          regex_match: null
+                          display_name: null
+                          pronounce_name: null
+                          description: null
+                          id: '12345'
+                          search_name: null
+                          is_sensitive: false
+                          keywords: null
+                          record_source: built_in
+                      last_action:
+                        - - show_response
+                          - - 福利_menu
+                    user_id: dennis
+                    output_language: en
+                    nlu_result:
+                      text: 12345 and efit
+                      entities:
+                        - type: number
+                          name: '12345'
+                          start_idx: 0
+                          end_idx: 5
+                          regex_match: null
+                          display_name: null
+                          pronounce_name: null
+                          description: null
+                          id: '12345'
+                          search_name: null
+                          is_sensitive: false
+                          keywords: null
+                          record_source: built_in
+                      intents:
+                        - name: welfare
+                          confidence: 0.6404643059
+                          confirmation_text:
+                            zh: 福利
+                            en: ''
+                            zh_cn: ''
+                          is_business_intent: false
+      operationId: get-bre-users-user_id-session-context
+      description: |-
+        Get specific user's session context
+
+        <!-- theme: warning -->
+        > The GET method is mainly for internal troubleshooting only. The data structure of the response may change, and it should not be referenced during system integration.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+    delete:
+      summary: '/bre/users/{user_id}/session-context'
+      operationId: delete-bre-users-user_id-session-context
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    default: true
+              examples:
+                JSON Example:
+                  value:
+                    ok: true
+      description: |-
+        Clear specific user's session context
+
+        > The DELETE method is mainly used during system integration for some "Start over" scenario.
+      security:
+        - basic auth: []
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: scope
+          description: specifying which chatbot is using
+      tags:
+        - business-rule
+components:
+  schemas:
+    ChatResponse:
+      title: ChatResponse
+      type: object
+      x-examples: {}
+      description: response of Chat API
+      x-tags:
+        - accobot
+      properties:
+        status:
+          type: string
+          enum:
+            - success
+            - error
+          example: success
+        content_type:
+          type: string
+          enum:
+            - text/plain
+            - audio/mp3
+          example: text/plain
+        content:
+          $ref: '#/components/schemas/ResponseContent'
+        msg_count:
+          type: integer
+          description: number of elements in `content` block
+        rule_stack:
+          type: array
+          description: (for debug) info about matched Business Rules
+          items: {}
+        is_idk:
+          description: (for debug) if system returns a default response (I DONT KNOW)
+          type: boolean
+        is_asking_intent_confirmation:
+          description: (for debug) is response is asking for intent confirmation
+          type: boolean
+        is_requiring_entity:
+          description: (for debug) if response is asking for required entity
+          type: boolean
+        is_requiring_entity_fail:
+          type: boolean
+          description: (for debug) if response is re-asking for required entity
+        is_sensitive_input:
+          type: boolean
+          description: (for debug) if response requests for sensitive input
+        user_input_to_log:
+          type: string
+          description: (for debug) the "masked" input content to Chatting Log
+        warnings:
+          type: array
+          description: (for debug) For warning occurs during BRE execution (e.g. external API call failed)
+          items:
+            type: object
+        nlu_result:
+          description: (for debug) NLU Result
+          type: object
+        speech_context:
+          type: object
+          description: (for debult) user's speech context
+        is_start:
+          type: boolean
+          description: (for debug) if this the start of a conversation
+        error_code:
+          type: string
+          description: shown when `status` is `error`
+        error_msg:
+          type: string
+          description: shown when `status` is `error`
+    ResponseContent:
+      title: ResponseContent
+      type: array
+      x-examples:
+        Content Example:
+          - text: xxx...
+          - audio:
+              content: base64encoded-data
+          - image:
+              url: 'http://img.com/xxx.jpeg'
+              title: Image Title
+              description: Image Description
+          - video:
+              url: 'https://www.youtube.com/watch?v=123abcd'
+              title: Video Title
+              description: Video Description
+          - web:
+              url: 'http://abc.com'
+              title: Website Title
+              description: Website Description
+              target: _self
+          - callback:
+              func: XXXXX
+              params:
+                wg_name: CUSTOMER_SERVICE_GROUP_1
+                telephone: '12345678'
+          - options:
+              - text: 係
+              - text: 唔係
+                custom: {}
+          - carousel:
+              - image:
+                  url: 'http://card_images/card_image1.jpg'
+                  title: Card 1 Title
+                  subtitle: Card 1 SubTitle
+                  default_action: Custom action on clicking the image
+                buttons:
+                  - text: View Website
+                    custom:
+                      type: web_url
+                      url: 'https://petersfancybrownhats.com'
+                  - text: Start Chatting
+                    custom:
+                      type: postback
+                      payload: DEVELOPER_DEFINED_PAYLOAD
+              - image:
+                  url: 'http://card_images/card_image2.jpg'
+                  title: Card 2 Title
+                  subtitle: Card 2 SubTitle
+                  default_action: Custom action on clicking the image
+                buttons:
+                  - text: View Website
+                    custom:
+                      type: web_url
+                      url: 'https://petersfancybrownhats.com'
+                  - text: Start Chatting
+                    custom:
+                      type: postback
+                      payload: DEVELOPER_DEFINED_PAYLOAD
+          - custom_payload:
+              custom_key: custom_value
+      description: array of response contents
+      x-tags:
+        - accobot
+      items:
+        anyOf:
+          - description: text Content
+            properties:
+              text:
+                type: string
+          - description: audio content
+            properties:
+              audio:
+                type: object
+          - description: image content
+            properties:
+              image:
+                type: object
+                description: ''
+          - description: video content
+            properties:
+              video:
+                type: object
+          - description: web URL content
+            properties:
+              web:
+                type: object
+          - description: callback object content
+            properties:
+              callback:
+                type: object
+              '':
+                type: string
+          - description: options content
+            properties:
+              options:
+                type: array
+                items:
+                  type: object
+          - description: custom payload content
+            properties:
+              custom_payload:
+                type: object
+        type: object
+    KnowledgeBase:
+      title: KnowledgeBase
+      type: object
+      x-examples:
+        JSON Example:
+          id: 5c4847b18679ca0001e03a8b
+          question:
+            en: I'd like to have a credit card
+            zh: 我要申請信用卡
+            zh_cn: 我要办信用卡
+          content:
+            - text:
+                en: Credit card application
+                zh: 信用卡申請
+                zh_cn: 信用卡怎么办
+          categories: []
+          tags: []
+      x-tags:
+        - knowledge-base
+      description: reponse item of KB API
+      properties:
+        id:
+          type: string
+        question:
+          type: object
+          properties:
+            en:
+              type: string
+            zh:
+              type: string
+            zh_cn:
+              type: string
+        content:
+          type: array
+          items:
+            type: object
+        categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - question
+        - content
+    KnowledgeBaseCategory:
+      title: KnowledgeBaseCategory
+      type: object
+      x-examples:
+        JSON Example:
+          id: 5a68307998080327952e32f2
+          name: payment-method
+          parent: 5a659c9d0be444296712c7b4
+          full_path: /5a6596400be444276025e8b1/5a659c9d0be444296712c7b4
+          children: []
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        parent:
+          type: string
+        full_path:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeBaseCategory'
+      required:
+        - id
+        - name
+        - parent
+        - full_path
+        - children
+      x-tags:
+        - knowledge-base
+    ChatRequestForm:
+      title: ChatRequestForm
+      type: object
+      x-tags:
+        - accobot
+      properties:
+        content_type:
+          type: string
+          description: The content type of the `content` field
+          example: audio
+          default: text
+          enum:
+            - text
+            - audio
+            - text/plain
+            - audio/*
+        expect_type:
+          type: string
+          default: text
+          description: The content type of the response
+          enum:
+            - text
+            - audio
+            - text/plain
+            - audio/mp3
+        input_language:
+          type: string
+          description: |-
+            The language of the text or audio input data. If not set, AccoBot will use the value from `output_language` field, or try to determine the language from the content with reasonable effort.
+
+            > NOTE: this should not be treated as "auto-language detction". We still suggest client to give values to `input_language` and `output_language` for consistency of system behaviour.
+          example: cantonese
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+        output_language:
+          type: string
+          description: 'AccoBot will response in that language. If not set, AccoBot will response in the same language as `input_language`.'
+          example: cantonese
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+        session_info:
+          type: string
+          description: JSON string for the session information from external system
+        channel:
+          type: string
+          description: 'The channel type for ASR server. It should align with CMP System Config''s channel. If `session_info` is skipped, this will be used as `session_info`''s channel as default'
+        content:
+          type: string
+          format: binary
+        asr_domain:
+          type: string
+          enum:
+            - hq
+            - tp
+          description: (for Speech API v2) ASR domain value. This will override the default value in Accoobot system.
+        audio_url:
+          type: string
+          description: '(for Speech API v2) The URL of the audio file. Client may provide a URL link of the audio file in here, instead of uploading the whole audio content thru `content`.'
+        audio_encoding:
+          type: string
+          description: (for Speech API v2) Audio file encoding. This will override the default value in Accoobot system.
+          example: LINEAR16
+        audio_sample_rate_hertz:
+          type: string
+          description: (for Speech API v2) Sample rate hertz of the audio file. This will override the default value in Accoobot system.
+          example: '16000'
+      required:
+        - content_type
+        - channel
+      description: ''
+    ChatRequestJson:
+      title: ChatRequestJson
+      type: object
+      x-tags:
+        - accobot
+      properties:
+        content_type:
+          type: string
+          enum:
+            - text/plain
+          example: text/plain
+          description: The content type of the `content` field
+        expect_type:
+          type: string
+          default: text/plain
+          description: The content type of the response
+          enum:
+            - text/plain
+            - audio/mp3
+        input_language:
+          type: string
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+          example: cantonese
+          description: |-
+            The language of the text or audio input data. If not set, AccoBot will use the value from `output_language` field, or try to determine the language from the content with reasonable effort.
+
+            > NOTE: this should not be treated as "auto-language detction". We still suggest client to give values to `input_language` and `output_language` for consistency of system behaviour.
+        output_language:
+          type: string
+          enum:
+            - mandarin
+            - cantonese
+            - english-usa
+          example: cantonese
+          description: 'AccoBot will response in that language. If not set, AccoBot will response in the same language as `input_language`.'
+        session_info:
+          type: object
+          description: 'Contains the session information from external system, e.g. `{"channel": "api"}`'
+          properties:
+            channel:
+              type: string
+              default: api
+        content:
+          type: string
+          description: Text content (what client what to "chat" with AccoBot)
+          example: Hello AccoBot
+      required:
+        - content_type
+        - content
+  securitySchemes:
+    basic auth:
+      type: http
+      scheme: basic
+      description: 'Basic Authentication header, with base64-encoded username:password'
+tags:
+  - name: accobot
+    description: for accessing AccoBot Chat API
+  - name: business-rule
+    description: for accessing Business Rule service APIs
+  - name: knowledge-base
+    description: for accessing Knowledge Base service APIs
