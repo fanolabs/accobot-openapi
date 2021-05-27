@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: AccoBot API
+  title: AccoBot API (v21.04.4.0)
   version: v21.04
   description: Access AccoBot services
   contact:

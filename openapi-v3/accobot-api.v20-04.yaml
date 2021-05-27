@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: AccoBot API
+  title: AccoBot API (v20.04)
   version: v20.04
   description: Access AccoBot services
   contact:
@@ -27,7 +27,7 @@ paths:
                     status: success
                     content_type: text/plain
                     content:
-                      - text: 'Hello! I am AccoBot.'
+                      - text: Hello! I am AccoBot.
                     msg_count: 1
                     rule_stack:
                       - id: 5d148c290ea6a52756eba543
@@ -156,7 +156,7 @@ paths:
                     status: success
                     content_type: text/plain
                     content:
-                      - text: 'Hello! I am AccoBot.'
+                      - text: Hello! I am AccoBot.
                     msg_count: 1
                     rule_stack:
                       - id: 5d148c290ea6a52756eba5b4
@@ -661,7 +661,7 @@ components:
           description: (for debug) if response requests for sensitive input
         user_input_to_log:
           type: string
-          description: '(for debug) the "masked" input content to Chatting Log'
+          description: (for debug) the "masked" input content to Chatting Log
         warnings:
           type: array
           description: (for debug) For warning occurs during BRE execution (e.g. external API call failed)
@@ -672,7 +672,7 @@ components:
           type: object
         speech_context:
           type: object
-          description: "(for debult) user's speech context"
+          description: (for debult) user's speech context
         is_start:
           type: boolean
           description: (for debug) if this the start of a conversation
@@ -795,7 +795,7 @@ components:
         JSON Example:
           id: 5c4847b18679ca0001e03a8b
           question:
-            en: "I'd like to have a credit card"
+            en: I'd like to have a credit card
             zh: 我要申請信用卡
             zh_cn: 我要办信用卡
           content:
@@ -909,7 +909,7 @@ components:
           description: JSON string for the session information from external system
         channel:
           type: string
-          description: "The channel type for ASR server. It should align with CMP System Config's channel. If `session_info` is skipped, this will be used as `session_info`'s channel as default"
+          description: 'The channel type for ASR server. It should align with CMP System Config''s channel. If `session_info` is skipped, this will be used as `session_info`''s channel as default'
         content:
           type: string
           format: binary
@@ -968,7 +968,7 @@ components:
               default: api
         content:
           type: string
-          description: 'Text content (what client what to "chat" with AccoBot)'
+          description: Text content (what client what to "chat" with AccoBot)
           example: Hello AccoBot
       required:
         - content_type
